@@ -14,25 +14,36 @@ func NewCategoriesRepository(db *sql.DB) *CategoriesRepository {
 	return &CategoriesRepository{db: db}
 }
 
-func (repo *CategoriesRepository) GetAll() ([]model.Categories, error) {
-	query := "SELECT id, name, description FROM categories"
-	rows, err := repo.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+func (repo *CategoriesRepository) GetAll(name string) ([]model.Categories, error) {
+    // 1. Inisialisasi query string. Tanpa ini, perintah 'query +=' akan error
+    query := "SELECT id, name, description FROM categories"
+    args := []interface{}{}
 
-	categories := make([]model.Categories, 0)
-	for rows.Next() {
-		var p model.Categories
-		err := rows.Scan(&p.ID, &p.Name, &p.Description)
-		if err != nil {
-			return nil, err
-		}
-		categories = append(categories, p)
-	}
+    // 2. Gunakan parameter 'name' (bukan nameFilter) sesuai argumen fungsi
+    if name != "" {
+        query += " WHERE name ILIKE $1"
+        args = append(args, "%"+name+"%")
+    }
 
-	return categories, nil
+    // 3. Eksekusi query
+    rows, err := repo.db.Query(query, args...)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    categories := make([]model.Categories, 0)
+    for rows.Next() {
+        var p model.Categories
+        // Pastikan urutan Scan sama dengan kolom di SELECT
+        err := rows.Scan(&p.ID, &p.Name, &p.Description)
+        if err != nil {
+            return nil, err
+        }
+        categories = append(categories, p)
+    }
+
+    return categories, nil
 }
 
 func (repo *CategoriesRepository) Create(categories *model.Categories) error {

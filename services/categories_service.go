@@ -13,8 +13,8 @@ func NewCategoriesService(repo *repositories.CategoriesRepository) *CategoriesSe
 	return &CategoriesService{repo: repo}
 }
 
-func (s *CategoriesService) GetAll() ([]model.Categories, error) {
-	return s.repo.GetAll()
+func (s *CategoriesService) GetAll(name string) ([]model.Categories, error) {
+	return s.repo.GetAll(name)
 }
 
 func (s *CategoriesService) Create(data *model.Categories) error {

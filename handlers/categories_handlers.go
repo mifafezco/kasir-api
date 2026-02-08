@@ -30,7 +30,8 @@ func (h *CategoriesHandler) HandleCategories(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *CategoriesHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	categories, err := h.service.GetAll()
+	name :=r.URL.Query().Get("name")
+	categories, err := h.service.GetAll(name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
